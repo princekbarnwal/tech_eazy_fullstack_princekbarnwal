@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zero Mile Delivery System</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Load Axios from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>Zero Mile Delivery System</h1>
+            <p>Logistics Management Portal</p>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="nav">
+            <button class="nav-btn active" onclick="showSection('dashboard')">Dashboard</button>
+            <button class="nav-btn" onclick="showSection('add-parcel')">Add Parcel</button>
+            <button class="nav-btn" onclick="showSection('manage-parcels')">Manage Parcels</button>
+            <button class="nav-btn" onclick="showSection('track-parcel')">Track Parcel</button>
+        </nav>
+
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="section active">
+            <h2>Dashboard Overview</h2>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Parcels</h3>
+                    <div class="stat-number" id="total-parcels">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Pending</h3>
+                    <div class="stat-number pending" id="pending-parcels">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>In Transit</h3>
+                    <div class="stat-number in-transit" id="transit-parcels">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Delivered</h3>
+                    <div class="stat-number delivered" id="delivered-parcels">0</div>
+                </div>
+            </div>
+
+            <div class="recent-parcels">
+                <h3>Recent Parcels</h3>
+                <div id="recent-parcels-list" class="parcel-grid">
+                    <!-- Recent parcels will be loaded here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Add Parcel Section -->
+        <section id="add-parcel" class="section">
+            <h2>Add New Parcel</h2>
+            
+            <form id="parcel-form" class="form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="customerName">Customer Name *</label>
+                        <input type="text" id="customerName" name="customerName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contactNumber">Contact Number *</label>
+                        <input type="tel" id="contactNumber" name="contactNumber" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="deliveryAddress">Delivery Address *</label>
+                    <textarea id="deliveryAddress" name="deliveryAddress" rows="3" required></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="parcelSize">Parcel Size *</label>
+                        <select id="parcelSize" name="parcelSize" required>
+                            <option value="Small">Small</option>
+                            <option value="Medium" selected>Medium</option>
+                            <option value="Large">Large</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="weight">Weight (kg) *</label>
+                        <input type="number" id="weight" name="weight" step="0.1" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="vendor">Vendor *</label>
+                        <input type="text" id="vendor" name="vendor" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">Add Parcel</button>
+            </form>
+        </section>
+
+        <!-- Manage Parcels Section -->
+        <section id="manage-parcels" class="section">
+            <h2>Manage Parcels</h2>
+            <div class="controls">
+                <button onclick="loadParcels()" class="refresh-btn">Refresh</button>
+                <span id="parcel-count">0 parcels</span>
+            </div>
+            <div id="parcels-list" class="parcel-grid">
+                <!-- Parcels will be loaded here -->
+            </div>
+        </section>
+
+        <!-- Track Parcel Section -->
+        <section id="track-parcel" class="section">
+            <h2>Track Your Parcel</h2>
+            
+            <div class="search-form">
+                <div class="search-input-group">
+                    <input type="text" id="tracking-id" placeholder="Enter Tracking ID (e.g., ZM123456)">
+                    <button onclick="trackParcel()" class="search-btn">Track</button>
+                </div>
+            </div>
+
+            <div id="tracking-result" class="tracking-result" style="display: none;">
+                <!-- Tracking result will be displayed here -->
+            </div>
+        </section>
+
+        <!-- Edit Modal -->
+        <div id="edit-modal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeEditModal()">&times;</span>
+                <h3>Edit Parcel</h3>
+                <form id="edit-form" class="form">
+                    <input type="hidden" id="edit-id">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="edit-customerName">Customer Name</label>
+                            <input type="text" id="edit-customerName" name="customerName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-contactNumber">Contact Number</label>
+                            <input type="tel" id="edit-contactNumber" name="contactNumber" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="edit-deliveryAddress">Delivery Address</label>
+                        <textarea id="edit-deliveryAddress" name="deliveryAddress" rows="3" required></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="edit-status">Status</label>
+                            <select id="edit-status" name="status" required>
+                                <option value="Pending">Pending</option>
+                                <option value="In Transit">In Transit</option>
+                                <option value="Delivered">Delivered</option>
+                                <option value="Failed">Failed</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-parcelSize">Size</label>
+                            <select id="edit-parcelSize" name="parcelSize" required>
+                                <option value="Small">Small</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Large">Large</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-weight">Weight (kg)</label>
+                            <input type="number" id="edit-weight" name="weight" step="0.1" min="0" required>
+                        </div>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="submit" class="save-btn">Save Changes</button>
+                        <button type="button" onclick="closeEditModal()" class="cancel-btn">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load JavaScript after DOM -->
+    <script src="app.js"></script>
+</body>
+</html>
