@@ -97,4 +97,5 @@ To modify the frontend:
 - All API responses should follow the standard format: `{success: boolean, data: any, message?: string}`
 \`\`\`
 
-Now let's create the backend files:
+This is my first pull request ✨
+
